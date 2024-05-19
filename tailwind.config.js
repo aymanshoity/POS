@@ -14,5 +14,7 @@ module.exports = {
       },
     },
   },
-  plugins: [],
+  plugins: [require('daisyui')],
+  daisyUI:{themes:["light", "dark", "cupcake", "retro",
+  "cyberpunk","valentine","halloween","cyberpunk"]}
 };

@@ -2,32 +2,147 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: #000;
+  border-radius: 0.75rem;
+  width: 140px;
+  height: 80px;
+  background-color: #f5f5f4;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+  color: #78716c;
+  font-size: 16px;
+  font-weight: 600;
+}
+.card2 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: #a79e98;
+  border-style: double;
+  border-width: 5px;
+  border-radius: 0.75rem;
+  width: 240px;
+  height: 80px;
+  background-color: #f5f5f4;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+  color: #78716c;
+  font-size: 16px;
+  font-weight: 600;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+
+@media (min-width:640px) {
+  .card {
+    width: 300px;
+    height: 100px;
+    font-size: 20px;
+    font-weight: 600;
   }
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
-}
-
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+@media (min-width:1024px) {
+  .card {
+    font-size: 24px;
+    font-weight: 600;
   }
 }
+
+@media (min-width:1440px) {
+  .card {
+    width: 320px;
+    height: 120px;
+  }
+}
+
+
+
+.card-container {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px;
+  /* Adjust as needed */
+  justify-items: center;
+  align-items: center;
+}
+
+.card-container1 {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 5px;
+  /* Adjust as needed */
+  justify-items: center;
+  align-items: center;
+}
+
+@media (min-width: 640px) {
+  .card-container ,.card-container1{
+    grid-template-columns: repeat(2 ,minmax(0, 1fr));
+    gap: 20px
+      /* Adjust as needed */
+  }
+}
+
+@media (min-width: 1024px) {
+  .card-container ,.card-container1 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+    /* Adjust as needed */
+  }
+}
+
+@media (min-width: 1440px) {
+  .card-container ,.card-container1{
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+    /* Adjust as needed */
+  }
+}
+
+
+
+.rfd {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+
+}
+.rfe {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+
+}
+
+.cfd {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+}
+
+.peer{
+  border-bottom-width: 1px;
+  border-color: #718096;
+  border-color: #000;
+  background-color: transparent;
+  color: #000;
+  outline: none;
+  width: 100%;
+}
+
