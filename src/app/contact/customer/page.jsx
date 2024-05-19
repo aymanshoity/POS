@@ -5,7 +5,6 @@ import { Button, Input, Space, DatePicker, Table, Row, Col, Form, Select, Drawer
 import React, { useMemo, useRef, useState } from "react";
 import Highlighter from 'react-highlight-words';
 import 'react-quill/dist/quill.snow.css';
-import 'react-quill/dist/quill.snow.css';
 const { Option } = Select;
 
 

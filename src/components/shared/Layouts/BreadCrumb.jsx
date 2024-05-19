@@ -1,5 +1,6 @@
 "use client"
 import { usePathname } from "next/navigation";
+import Link from "next/link";
 
 const BreadCrumb = () => {
 
@@ -11,12 +12,15 @@ const BreadCrumb = () => {
         <div className="md:text-sm text-xs mx-4  breadcrumbs">
 
             <ul>
-                <li><a className="px-1 ">Dashboard</a></li>
+                <li><Link className="px-1" href="/">Dashboard</Link></li>
 
                 {
-                    list.map((item, index) => (
-                        <li key={index + 1}> <a  className="px-1 " >{item.split('-').map(word => {return word.charAt(0).toUpperCase()+word.slice(1) + " "})}</a></li>
-                    ))
+                    list.map((item, index) => {
+                        if (index+1 == list.length)
+                            return <li key={index + 1}> <Link href="#" className="px-1 " >{item.split('-').map(word => {return word.charAt(0).toUpperCase()+word.slice(1) + " "})}</Link></li>
+                        else
+                        return <li key={index + 1}> <Link href={`/${item}`} className="px-1 " >{item.split('-').map(word => {return word.charAt(0).toUpperCase()+word.slice(1) + " "})}</Link></li>
+})
                 }
 
             </ul>
