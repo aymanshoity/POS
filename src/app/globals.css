@@ -147,5 +147,7 @@
 }
 
 /* td{
- border: 1px solid #eeecec;
-} */
+ 
+ border: 1px solid black;
+ border-collapse: collapse;
+}  */

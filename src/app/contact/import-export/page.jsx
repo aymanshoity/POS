@@ -1,6 +1,7 @@
 "use client"
-
+import * as XLSX from "xlsx";
 import { Button, Divider, Select, Table, Upload } from "antd";
+import { useState } from "react";
 const props = {
     name: 'file',
     action: 'https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload',
@@ -67,8 +68,27 @@ const columns = [
         key: 'specialDate',
     },
 ]
-const Import_Export = () => {
 
+
+const Import_Export = () => {
+    const [data, setData] = useState([])
+    const handleImport = (e) => {
+        console.log(e)
+        const file = e.target.files[0];
+        console.log(e.target.files[0])
+        const reader = new FileReader()
+        reader.onload = (event) => {
+            const bstr = event.target.result;
+            console.log(bstr)
+            const workBook = XLSX.read(bstr, { type: 'binary' })
+            const workSheetName = workBook.SheetNames[0]
+            const workSheet = workBook.Sheets[workSheetName]
+            const fileData = XLSX.utils.sheet_to_json(workSheet)
+            setData(fileData)
+        }
+        reader.readAsBinaryString(file);
+
+    }
     const handleChange = (value) => {
         console.log(`selected ${value}`);
     };
@@ -136,9 +156,10 @@ const Import_Export = () => {
             <div>
                 <h1 className="font-semibold">Import</h1>
                 <div className="flex gap-5">
-                    <input type="file" className="file-input-bordered w-full max-w-xs" />
+                    <input accept=".xlsx, .xls" onChange={handleImport} type="file" className="file-input-bordered w-full max-w-xs" />
                     <Button type="primary" > Upload</Button>
                 </div>
+                <pre>{JSON.stringify(data, null, 2)}</pre>
 
             </div>
 
@@ -159,12 +180,12 @@ const Import_Export = () => {
                     </thead>
                     <tbody>
                         <tr className="hover:bg-gray-50 transition duration-300">
-                            
+
                         </tr>
-                        
+
                     </tbody>
                 </table>
-                
+
             </div>
         </div>
 

@@ -3,30 +3,22 @@ import { Button, Checkbox, Form, Image, Input } from 'antd';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { userStore } from '@/store/user';
-import AxiosPublic from '@/components/shared/Hooks/useAxiosPublic';
+import { SignIn } from '@/actions/AuthActions';
 
 const Login = () => {
-
-    const [loading, setLoading] = useState(false)
     const updateUser = userStore(state => state.updateUser)
-    
+
     const router = useRouter()
-    const axiosPublic = AxiosPublic()
-    const onFinish =async(values) => {
+    const onFinish = (values) => {
         console.log('Success:', values);
-        // SignIn(values)
-        const userResponse = await axiosPublic.post('/api/contact/login/', values)
-        console.log(userResponse)
-        console.log(userResponse.data)
-        if (userResponse.status === 200) {
-            updateUser(userResponse.data);
+
+        SignIn(values).then(result => {
+            console.log(result)
+            const res = result
+            console.log(res)
+            updateUser(res);
             router.push('/');
-        }
-        else {
-            alert('wrong Credential')
-        }
-
-
+        })
     };
     const onFinishFailed = (errorInfo) => {
         console.log('Failed:', errorInfo);

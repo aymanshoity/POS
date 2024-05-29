@@ -4,8 +4,8 @@ const axiosPublic = axios.create({
    
  });
 
-const AxiosPublic = () => {
+const useAxiosPublic = () => {
    return axiosPublic
 };
 
-export default AxiosPublic;
+export default useAxiosPublic;

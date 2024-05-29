@@ -1,47 +1,18 @@
 "use client"
-import dynamic from "next/dynamic";
-import { SearchOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Input, Space, DatePicker, Table, Row, Col, Form, Select, Drawer, Checkbox } from "antd";
-import React, { useMemo, useRef, useState } from "react";
+
+import useAxiosPublic from "@/components/shared/Hooks/useAxiosPublic";
+import ContactDetails from "@/components/shared/SubComponents/Contact/ContactDetails";
+import CreateCustomer from "@/components/shared/SubComponents/Contact/CreateCustomer";
+import { userStore } from "@/store/user";
+import { SearchOutlined, } from "@ant-design/icons";
+import { useQuery } from "@tanstack/react-query";
+import { Button, Input, Space, Table, Row, Col, Form, Select, Drawer, Checkbox, Divider } from "antd";
+import React, { useEffect, useRef, useState } from "react";
 import Highlighter from 'react-highlight-words';
 import 'react-quill/dist/quill.snow.css';
 const { Option } = Select;
+import * as XLSX from "xlsx";
 
-
-const data = [
-    {
-        key: '1',
-        name: 'John Brown',
-        age: 32,
-        address: 'New York No. 1 Lake Park',
-        email: 'johnbrown@gmail.com',
-        type: 'regular'
-    },
-    {
-        key: '2',
-        name: 'Jim Green',
-        age: 42,
-        address: 'London No. 1 Lake Park',
-        email: 'johnbrown@gmail.com',
-        type: 'regular'
-    },
-    {
-        key: '3',
-        name: 'Joe Black',
-        age: 32,
-        address: 'Sydney No. 1 Lake Park',
-        email: 'johnbrown@gmail.com',
-        type: 'regular'
-    },
-    {
-        key: '4',
-        name: 'Disabled User',
-        age: 99,
-        address: 'Sydney No. 1 Lake Park',
-        email: 'johnbrown@gmail.com',
-        type: 'regular'
-    },
-];
 
 // rowSelection object indicates the need for row selection
 const rowSelection = {
@@ -51,29 +22,70 @@ const rowSelection = {
 
 };
 const Customer = () => {
-    const [form] = Form.useForm();
-    const [value, setValue] = useState('');
+    const token = userStore(state => state.user.token)
+    console.log(token)
     const [selectionType, setSelectionType] = useState('checkbox');
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef(null);
-    const ReactQuill = useMemo(() => dynamic(() => import('react-quill'), { ssr: false }), []);
-    const onFinish = (values) => {
-        console.log('Success:', values);
-        form.resetFields();
+    const axiosPublic = useAxiosPublic()
+    const tableRef = useRef(null);
+    // drawer
+    const [open, setOpen] = useState(false);
+    const showDrawer = () => {
+        setOpen(true);
     };
-    const onFinishFailed = (errorInfo) => {
-        console.log('Failed:', errorInfo);
+    const onClose = () => {
+        setOpen(false);
+
     };
+    // date fetching
+    const { data: customerContact, refetch, isLoading } = useQuery({
+        queryKey: ['customerContact'],
+        enabled: !!token,
+        queryFn: async () => {
+            try {
+                const res = await axiosPublic.get(`/api/contact/contact/?Type=Customer`, {
+                    headers: {
+                        'Authorization': `Token ${token}`,
+                    }
+                })
+                console.log(res.data)
+                return res.data
+            } catch (e) {
+                console.log(e)
+            }
+        },
+
+
+    })
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
         confirm();
         setSearchText(selectedKeys[0]);
         setSearchedColumn(dataIndex);
+
     };
     const handleReset = (clearFilters) => {
         clearFilters();
         setSearchText('');
     };
+    
+    const onGetExportProduct = (title = 'Customer', worksheetName = 'CustomerExport') => {
+        const dataToExport = customerContact?.map((contact) => ({
+            Name:contact?.name,
+            Phone:contact?.phone,
+            Email:contact?.email,
+            Address:contact?.address,
+            Type:contact?.role,
+          }));
+  
+          const workbook = XLSX.utils.book_new();
+          const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+          XLSX.utils.book_append_sheet(workbook, worksheet, worksheetName);
+          XLSX.writeFile(workbook, `${title}.xlsx`);
+          console.log(`Exported data to ${title}.xlsx`);
+      };
+    
     const getColumnSearchProps = (dataIndex) => ({
         filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
             <div
@@ -169,16 +181,17 @@ const Customer = () => {
             ...getColumnSearchProps('name'),
         },
         {
-            title: 'Age',
-            dataIndex: 'age',
-            key: 'age',
-            width: '5%',
-            ...getColumnSearchProps('age'),
+            title: 'Phone',
+            dataIndex: 'phone',
+            key: 'phone',
+            width: '15%',
+            ...getColumnSearchProps('phone'),
         },
         {
             title: 'Address',
             dataIndex: 'address',
             key: 'address',
+            width: '25%',
             ...getColumnSearchProps('address'),
             sorter: (a, b) => a.address.length - b.address.length,
             sortDirections: ['descend', 'ascend'],
@@ -187,21 +200,24 @@ const Customer = () => {
             title: 'Email',
             dataIndex: 'email',
             key: 'email',
-            width: '25%',
+            width: '15%',
             ...getColumnSearchProps('email'),
         },
         {
             title: 'Type',
-            dataIndex: 'type',
-            key: 'type',
-            width: '20%',
-            ...getColumnSearchProps('type'),
+            dataIndex: 'role',
+            key: 'role',
+            width: '10%',
+            ...getColumnSearchProps('role'),
         },
         {
             title: 'Action',
-            dataIndex: '',
-            key: 'x',
-            render: () => <a onClick={handleShowDetails}>View Details</a>,
+            dataIndex: 'action',
+            key: 'action',
+            render: (_, details) => {
+                // console.log(details);
+                return <ContactDetails token={token} detailsId={details.id} refetch={refetch} ></ContactDetails>;
+            }
         },
     ];
 
@@ -247,203 +263,32 @@ const Customer = () => {
             dataIndex: '',
             key: 'x',
             width: '45%',
-            render: () => <a onClick={handleShowDetails}>View Details</a>,
+            render: () => <a >View Details</a>,
         },
     ];
 
-    // drawer
-    const [open, setOpen] = useState(false);
-    const [showDetails, setShowDetails] = useState(false);
-    const showDrawer = () => {
-        setOpen(true);
-    };
-    const onClose = () => {
-        setOpen(false);
-        setShowDetails(false)
-    };
-    const handleShowDetails = () => {
-        setShowDetails(true);
-    };
+
+    if (isLoading) {
+        return <div className="w-10 h-10 flex gap-2 items-center justify-center"><div className="w-2 h-5 animate-[ping_1.4s_linear_infinite] bg-blue-800"></div><div className="w-2 h-5 animate-[ping_1.8s_linear_infinite] bg-blue-800"></div><div className="w-2 h-5 animate-[ping_2s_linear_infinite] bg-blue-800"></div></div>
+
+    }
+
+
+
+
 
 
 
     return (
         <div className=" mt-10">
-            <div className="flex md:justify-end mb-5">
-                <Button onClick={showDrawer} icon={<PlusOutlined />} type="primary"> New Customer</Button>
-                <Drawer
-                    title="Create a new Customer"
-                    width={720}
-                    onClose={onClose}
-                    open={open}
-                    styles={{
-                        body: {
-                            paddingBottom: 80,
-                        },
-
-                    }}
-
-                >
-                    <Form
-                        form={form}
-                        layout="vertical"
-                        onFinish={onFinish}
-                        onFinishFailed={onFinishFailed}
-                        autoComplete="off">
-                        <Row gutter={16}>
-                            <Col span={12}>
-                                <Form.Item
-                                    name="name"
-                                    label="Name"
-
-                                >
-                                    <Input placeholder="Please enter user name" />
-                                </Form.Item>
-                            </Col>
-                            <Col span={12}>
-                                <Form.Item
-                                    name="email"
-                                    label="Email"
-
-                                >
-                                    <Input
-                                        style={{
-                                            width: '100%',
-                                        }}
-                                        addonBefore="@"
-                                        placeholder="Please enter email"
-                                    />
-                                </Form.Item>
-                            </Col>
-                        </Row>
-                        <Row gutter={16}>
-                            <Col span={12}>
-                                <Form.Item
-                                    name="phone"
-                                    label="Phone Number"
-                                    rules={[
-                                        {
-                                            required: true,
-                                            message: 'Please enter phone number',
-                                        },
-                                    ]}
-                                >
-                                    <Input placeholder="Please enter phone number" />
-                                </Form.Item>
-                            </Col>
-                            <Col span={12}>
-                                <Form.Item
-                                    name="type"
-                                    label="Type"
-
-                                >
-                                    <Select placeholder="Please choose the type">
-                                        <Option value="VIPCustomer">VIP Customer</Option>
-                                        <Option value="RegularCustomer">Regular Customer</Option>
-                                        <Option value="ForeignCustomer">Foreign Customer</Option>
-                                        <Option value="OnlineCustomer">Online Customer</Option>
-
-                                    </Select>
-                                </Form.Item>
-                            </Col>
-                        </Row>
-                        <Row gutter={16}>
-                            <Col span={12}>
-                                <Form.Item
-                                    name="special_date_type"
-                                    label="Special Date Types"
-
-                                >
-                                    <Select placeholder="Please choose the type">
-                                        <Option value="birthday">Birthday</Option>
-                                        <Option value="wedding">Wedding</Option>
-                                        <Option value="anniversary">Anniversary</Option>
-                                        <Option value="Others">Others</Option>
-
-                                    </Select>
-                                </Form.Item>
-                            </Col>
-                            <Col span={12}>
-                                <Form.Item
-                                    name="special_date"
-                                    label="Special Date"
-
-                                >
-                                    <DatePicker
-                                        style={{
-                                            width: '100%',
-                                        }}
-                                        getPopupContainer={(trigger) => trigger.parentElement}
-                                    />
-                                </Form.Item>
-                            </Col>
-                        </Row>
-                        <Row gutter={16}>
-                            <Col span={24}>
-                                <Form.Item
-                                    name="address"
-                                    label="Address"
-
-                                >
-                                    <Input.TextArea rows={1} placeholder="please enter your address" />
-                                </Form.Item>
-                            </Col>
-                        </Row>
-                        <Row gutter={16}>
-                            <Col span={24}>
-
-                                <Form.Item
-                                    name="remarks"
-                                    label="Remarks"
-                                    className="rounded-xl"
-                                >
-                                    <ReactQuill theme="snow" value={value} onChange={setValue} />
-                                </Form.Item>
-
-                            </Col>
-                        </Row>
-                        <Row gutter={16}>
-                            <Col span={16}>
-                                <Form.Item
-                                    name="active_contact"
-                                    valuePropName="checked"
-
-                                >
-                                    <Checkbox>Active Contact!</Checkbox>
-                                </Form.Item>
-                            </Col>
-                        </Row>
-                        <Row gutter={24}>
-                            <Col span={4}>
-                                <Form.Item
-
-                                >
-                                    <Button onClick={onClose}>Cancel</Button>
-
-
-                                </Form.Item>
-                            </Col>
-                            <Col span={[12 - 24]}>
-                                <Form.Item
-
-                                >
-
-                                    <Button htmlType="submit" type="primary">
-                                        Submit
-                                    </Button>
-
-                                </Form.Item>
-                            </Col>
-                        </Row>
-                    </Form>
-                </Drawer>
-            </div>
+            <CreateCustomer refetch={refetch}></CreateCustomer>
             <div className="">
-                <Button type="primary">Download Selected Data</Button>
+                    <Button onClick={() => onGetExportProduct("Customer", "CustomerExport")} type="primary">Download Excel Data</Button>
             </div>
 
             {/*  */}
             <div className=" mt-5">
+
                 <Table
                     rowSelection={{
                         type: selectionType,
@@ -451,62 +296,17 @@ const Customer = () => {
                     }}
                     className="hidden sm:table"
                     columns={columns}
-                    dataSource={data}
+                    dataSource={customerContact}
+                    ref={tableRef}
                 />
+
                 <Table rowSelection={{
                     type: selectionType,
                     ...rowSelection,
-                }} className="md:hidden  lg:hidden "  dataSource={data} columns={MobileColumns} rowKey="key" />;
+                }} className="md:hidden  lg:hidden " dataSource={customerContact} columns={MobileColumns} rowKey="key" />;
 
             </div>
-            <Drawer
-                title="Customer Information"
-                width={720}
-                onClose={onClose}
-                open={showDetails}
-                styles={{
-                    body: {
-                        paddingBottom: 80,
-                    },
-                }}
 
-            >
-
-                <Row className="my-5" gutter={16}>
-                    <Col span={12}>
-                        <p>Name:</p>
-                    </Col>
-                    <Col span={12}>
-                        <p>Phone:</p>
-                    </Col>
-
-                </Row>
-                <Row className="my-5" gutter={16}>
-                    <Col span={12}>
-                        <p>Email:</p>
-                    </Col>
-                    <Col span={12}>
-                        <p>Type:</p>
-                    </Col>
-
-                </Row>
-                <Row className="my-5" gutter={16}>
-                    <Col span={12}>
-                        <p>Address:</p>
-                    </Col>
-
-
-                </Row>
-                <Row className="my-5" gutter={16}>
-                    <Col span={12}>
-                        <p>Remark:</p>
-                    </Col>
-
-
-                </Row>
-
-
-            </Drawer>
 
         </div>
     );

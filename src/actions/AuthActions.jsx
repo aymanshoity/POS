@@ -1,24 +1,23 @@
+"use server"
+
+import axios from "axios";
+const axiosPublic = axios.create({
+   baseURL: 'https://lifestyleerpapi.up.railway.app',
+   
+ });
 
 
 
-import AxiosPublic from "@/components/shared/Hooks/useAxiosPublic";
-import { userStore } from "@/store/user";
-import { useRouter } from "next/navigation";
-
-
-export const SignIn = async (user) => {
-
-    const axiosPublic = AxiosPublic()
-    const updateUser = userStore(state => state.updateUser)
-    const router = useRouter()
+export async function SignIn (user) {
     console.log(user)
+  
     const userResponse = await axiosPublic.post('/api/contact/login/', user);
-    console.log(userResponse);
-    console.log(userResponse.data);
+    console.log(userResponse.status);
+    // console.log(userResponse.data);
 
-    if (userResponse.status === 200) {
-        updateUser(userResponse.data);
-        return router.push('/');
+    if (userResponse?.status === 200) {
+        
+        return userResponse.data
     } else {
         alert('Wrong credentials');
     }
