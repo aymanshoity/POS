@@ -12,6 +12,10 @@ const sales = () => {
             <div className='card2'>
                 <h1 >All Orders</h1>
             </div></Link>
+        <Link href='/sales/all-services'>
+            <div className='card2'>
+                <h1 >All Services</h1>
+            </div></Link>
         <Link href='/sales/draft-cost-sheet'>
             <div className='card2'>
                 <h1 >Draft Cost Sheet</h1>

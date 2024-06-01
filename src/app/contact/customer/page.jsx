@@ -69,23 +69,24 @@ const Customer = () => {
         clearFilters();
         setSearchText('');
     };
-    
+
+    // downloading Excel File
     const onGetExportProduct = (title = 'Customer', worksheetName = 'CustomerExport') => {
         const dataToExport = customerContact?.map((contact) => ({
-            Name:contact?.name,
-            Phone:contact?.phone,
-            Email:contact?.email,
-            Address:contact?.address,
-            Type:contact?.role,
-          }));
-  
-          const workbook = XLSX.utils.book_new();
-          const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-          XLSX.utils.book_append_sheet(workbook, worksheet, worksheetName);
-          XLSX.writeFile(workbook, `${title}.xlsx`);
-          console.log(`Exported data to ${title}.xlsx`);
-      };
-    
+            Name: contact?.name,
+            Phone: contact?.phone,
+            Email: contact?.email,
+            Address: contact?.address,
+            Type: contact?.role,
+        }));
+
+        const workbook = XLSX.utils.book_new();
+        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+        XLSX.utils.book_append_sheet(workbook, worksheet, worksheetName);
+        XLSX.writeFile(workbook, `${title}.xlsx`);
+        console.log(`Exported data to ${title}.xlsx`);
+    };
+
     const getColumnSearchProps = (dataIndex) => ({
         filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
             <div
@@ -283,7 +284,7 @@ const Customer = () => {
         <div className=" mt-10">
             <CreateCustomer refetch={refetch}></CreateCustomer>
             <div className="">
-                    <Button onClick={() => onGetExportProduct("Customer", "CustomerExport")} type="primary">Download Excel Data</Button>
+                <Button onClick={() => onGetExportProduct("Customer", "CustomerExport")} type="primary">Download Excel Data</Button>
             </div>
 
             {/*  */}

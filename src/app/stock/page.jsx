@@ -12,7 +12,7 @@ const stock = () => {
     <div className='card2'>
                 <h1 >Packaging Stock</h1>
             </div></Link>
-    <Link  href='/stock/material-export'>
+    <Link  href='/stock/material-stock'>
     <div className='card2'>
                 <h1 >Material Stock</h1>
             </div></Link>

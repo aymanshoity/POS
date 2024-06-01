@@ -2,6 +2,9 @@
 import * as XLSX from "xlsx";
 import { Button, Divider, Select, Table, Upload } from "antd";
 import { useState } from "react";
+import useAxiosPublic from "@/components/shared/Hooks/useAxiosPublic";
+import { userStore } from "@/store/user";
+import ExportExcel from "@/components/shared/SubComponents/Contact/ExportExcel";
 const props = {
     name: 'file',
     action: 'https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload',
@@ -71,7 +74,11 @@ const columns = [
 
 
 const Import_Export = () => {
+    const token = userStore(state => state.user.token)
+    console.log(token)
+    const axiosPublic=useAxiosPublic()
     const [data, setData] = useState([])
+    const [exportedData, setExportedData] = useState([])
     const handleImport = (e) => {
         console.log(e)
         const file = e.target.files[0];
@@ -85,13 +92,66 @@ const Import_Export = () => {
             const workSheet = workBook.Sheets[workSheetName]
             const fileData = XLSX.utils.sheet_to_json(workSheet)
             setData(fileData)
+         
+            console.log(JSON.stringify(data, null, 2))
         }
         reader.readAsBinaryString(file);
+        
 
     }
-    const handleChange = (value) => {
+    const handleChange = async(value) => {
+        
         console.log(`selected ${value}`);
+
+
+        if(value ==="All Customer" || value === "All Supplier"){
+            const type=value.split(' ')[1]
+            console.log(type)
+            try {
+                    const res = await axiosPublic.get(`/api/contact/contact/?Type=${type}`, {
+                        headers: {
+                            'Authorization': `Token ${token}`,
+                        }
+                    })
+                    console.log(res.data)
+                    ExportExcel(res.data, value, type)
+                } catch (e) {
+                    console.log(e)
+                }
+        }
+        else if(value==="All"){
+            const value="All Contacts"
+            try {
+                const res = await axiosPublic.get(`/api/contact/contact/`, {
+                    headers: {
+                        'Authorization': `Token ${token}`,
+                    }
+                })
+                console.log(res.data)
+                ExportExcel(res.data, value,value)
+            } catch (e) {
+                console.log(e)
+            }
+        }
+        else{
+            const type=value.split('-')
+            console.log(type)
+            try {
+                const res = await axiosPublic.get(`api/contact/contact/?keyward=${""}&Type=${type[0]}&role=${type[1]}`, {
+                    headers: {
+                        'Authorization': `Token ${token}`,
+                    }
+                })
+                console.log(res.data)
+                ExportExcel(res.data, value,value)
+            } catch (e) {
+                console.log(e)
+            }
+        }
+        
     };
+    console.log(data)
+
     return (
         <div className="mt-10">
             <div>
@@ -106,43 +166,43 @@ const Import_Export = () => {
                         onChange={handleChange}
                         options={[
                             {
-                                value: 'all',
+                                value: 'All',
                                 label: 'All',
                             },
                             {
-                                value: 'allCustomer',
+                                value: 'All Customer',
                                 label: 'All Customer',
                             },
                             {
-                                value: 'customer-VIP-Customer',
+                                value: 'Customer-VIP Customer',
                                 label: 'Customer-VIP Customer',
                             },
                             {
-                                value: 'customer-Regular-Customer',
+                                value: 'Customer-Regular Customer',
                                 label: 'Customer-Regular Customer',
                             },
                             {
-                                value: 'customer-Foreign-Customer',
+                                value: 'Customer-Foreign Customer',
                                 label: 'Customer-Foreign Customer',
                             },
                             {
-                                value: 'customer-Online-Customer',
+                                value: 'Customer-Online-Customer',
                                 label: 'Customer-Online Customer',
                             },
                             {
-                                value: 'allSupplier',
+                                value: 'All Supplier',
                                 label: 'All Supplier',
                             },
                             {
-                                value: 'supplier-Local-Supplier',
+                                value: 'Supplier-Local-Supplier',
                                 label: 'Supplier-Local Supplier',
                             },
                             {
-                                value: 'supplier-Foreign-Supplier',
+                                value: 'Supplier-Foreign-Supplier',
                                 label: 'Supplier-Foreign Supplier',
                             },
                             {
-                                value: 'supplier-Regular-Supplier',
+                                value: 'Supplier-Regular-Supplier',
                                 label: 'Supplier-Regular Supplier',
                             },
 
@@ -159,7 +219,7 @@ const Import_Export = () => {
                     <input accept=".xlsx, .xls" onChange={handleImport} type="file" className="file-input-bordered w-full max-w-xs" />
                     <Button type="primary" > Upload</Button>
                 </div>
-                <pre>{JSON.stringify(data, null, 2)}</pre>
+                {/* <pre>{JSON.stringify(data, null, 2)}</pre> */}
 
             </div>
 
@@ -176,12 +236,26 @@ const Import_Export = () => {
                             <th className="py-3 px-6 border-b">Address</th>
                             <th className="py-3 px-6 border-b">Special Date Type</th>
                             <th className="py-3 px-6 border-b">Special Date</th>
+
                         </tr>
                     </thead>
                     <tbody>
-                        <tr className="hover:bg-gray-50 transition duration-300">
+                        {
+                            data?.map((data,index) => (
+                                <tr key={index} className="hover:bg-gray-50 transition duration-300">
+                                    <td className="py-3 px-6 border-b"></td>
+                                    <td className="py-3 px-6 border-b">{data?.Type}</td>
+                                    <td className="py-3 px-6 border-b">{data?.Name}</td>
+                                    <td className="py-3 px-6 border-b">{data?.Email}</td>
+                                    <td className="py-3 px-6 border-b">{data?.Phone}</td>
+                                    <td className="py-3 px-6 border-b"></td>
+                                    <td className="py-3 px-6 border-b">{data?.Address}</td>
+                                    <td className="py-3 px-6 border-b"></td>
+                                    <td className="py-3 px-6 border-b"></td>
 
-                        </tr>
+                                </tr>
+                            ))
+                        }
 
                     </tbody>
                 </table>

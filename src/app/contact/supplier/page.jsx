@@ -307,7 +307,7 @@ const Supplier = () => {
          {/*  */}
 
          <div className="mt-5">
-            {!isLoading && <Table
+           <Table
                rowSelection={{
                   type: selectionType,
                   ...rowSelection,
@@ -315,7 +315,7 @@ const Supplier = () => {
                className="hidden sm:table mt-5"
                columns={columns}
                dataSource={supplierContact}
-            />}
+            />
 
             <Table className=" md:hidden  lg:hidden " dataSource={supplierContact} columns={MobileColumns} rowKey="key" />;
 
