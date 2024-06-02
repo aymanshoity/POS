@@ -136,7 +136,7 @@ const ContactDetails = ({ token, detailsId,refetch }) => {
                </Col>
                <Row className="my-5" gutter={16}>
                   <Col span={24}>
-                     <CustomerHistory ID={contact?.id}></CustomerHistory>
+                     <CustomerHistory ID={detailsId}></CustomerHistory>
                   </Col>
 
 

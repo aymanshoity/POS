@@ -12,7 +12,7 @@ const axiosPublic = axios.create({
 
 
 
-
+// create Contact
 export async function createContact (contact,token) {
     
     contact["data"] = "";
@@ -37,6 +37,8 @@ export async function createContact (contact,token) {
     }
 
 }
+
+// edit contact
 export async function editContact (id,contact,token) {
     
     
@@ -61,4 +63,5 @@ export async function editContact (id,contact,token) {
 
 }
 
+// get specific Contact
 
