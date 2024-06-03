@@ -6,7 +6,7 @@ import Footer from "@/components/shared/Layouts/Footer";
 import { usePathname } from "next/navigation";
 import { metadata } from "@/components/shared/Metadata/metadata";
 import TanstackProvider from "@/provider/TanstackProvider";
-// import PrivateRoute from "@/components/shared/Route/PrivateRoute";
+import PrivateRoute from "@/components/shared/Route/PrivateRoute";
 
 
 
@@ -26,17 +26,16 @@ export default function RootLayout({ children }) {
         <meta name="description" content={metadata.description} />
       </head>
       <body className="min-h-screen">
+
         <TanstackProvider>
-          {isLoginPage || <Navbar></Navbar>}
-
-          <div className="px-5">
-
-            {children}
-
-          </div>
-
-          {/* <Footer></Footer> */}
+          <PrivateRoute>
+            {isLoginPage || <Navbar></Navbar>}
+            <div className="px-5">
+              {children}
+            </div>
+          </PrivateRoute>
         </TanstackProvider>
+
       </body>
 
     </html>

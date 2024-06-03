@@ -1,30 +1,29 @@
-import { userStore } from '@/store/user';
-import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+"use client"
+
+import { userStore } from "@/store/user";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const PrivateRoute = ({ children }) => {
-   const user = userStore(state => state.user)
-   const [loading, setLoading] = useState(true);
+   const is_authenticated = userStore(state => state.user.is_authenticated)
    const router = useRouter()
+   const [isLoading, setIsLoading] = useState(true);
 
-   // if (loading) {
-   //    return <div className='flex flex-col items-center justify-center'>
-   //       <div className="w-10 h-10 animate-[spin_2s_linear_infinite] rounded-full border-8 border-dotted border-sky-600"></div>
-   //    </div>
-   // }
+  useEffect(() => {
+    if (is_authenticated) {
+      setIsLoading(false);
+    } else {
+      router.replace("/login");
+    }
+  }, [is_authenticated, router]);
 
-   if(user){
-      setLoading(false)
-      return children;
-   }
+  if (isLoading) {
+     <div><h1>Loading...</h1></div>; // Render a loading state while checking authentication
+  }
 
-   return router.push('/login')
-
-
-
-
-
-
+  return children;
 };
+
+
 
 export default PrivateRoute;
